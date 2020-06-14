@@ -1,0 +1,66 @@
+---
+
+- name: Verificação do SO para essa task
+  fail:
+    msg: 
+     - "Essa task foi criada para Ubuntu 18"
+     - "Revise essa task para rodar em {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+  when:
+  - ansible_distribution != 'Ubuntu'
+  - ansible_distribution_major_version != '18'
+
+# Instalação de pacotes
+
+- name: Instalação de pacotes
+  apt: name={{ mariadb_packages }} state=latest update_cache=yes install_recommends=yes
+  vars:
+      mariadb_packages:
+         - mariadb-client
+         - mariadb-server
+         - python-mysqldb
+
+- name: Criacao da senha root
+  command: openssl rand -base64 14 creates=/root/.my.cnf
+  register: mysql_root_pass
+   
+- name: Display password
+  debug:
+      msg: "Password: {{ mysql_root_pass.stdout }}"
+  when: mysql_root_pass.changed
+   
+- name: Alteração da senha de root
+  mysql_user: name=root host={{ item }} password={{ mysql_root_pass.stdout }}
+  with_items:
+      - 127.0.0.1
+      - localhost
+  when: mysql_root_pass.changed
+   
+- name: Copiando template .my.cnf
+  template: src=.my.cnf dest=/root/.my.cnf owner=root group=root mode=0600
+  when: mysql_root_pass.changed
+   
+- name: Removendo o acesso Anonimo
+  mysql_user: name="" host=localhost state=absent
+  when: mysql_root_pass.changed
+   
+- name: Removendo a base test
+  mysql_db: name=teste state=absent
+  when: mysql_root_pass.changed
+  
+- name: Criando a base de dados wordpress
+  mysql_db: name=wordpress state=present login_user='root' login_password='{{ mysql_root_pass.stdout }}'
+  when: mysql_root_pass.changed
+  
+- name: Criacao do usuario com acesso wordpress
+  mysql_user: name='{{ wordpress_database_user }}' password='{{ wordpress_database_user_password }}' priv='{{ wordpress_database_name }}.*:ALL' host='{{ wordpress_www_host }}' login_user=root login_password='{{ mysql_root_pass.stdout }}' login_host=localhost
+  when: mysql_root_pass.changed
+   
+- name: Liberando acesso remoto ao mysql
+  lineinfile:
+      dest=/etc/mysql/mariadb.conf.d/50-server.cnf
+      regexp='bind-address      = 127.0.0.1'
+      line='bind-address        = 0.0.0.0'
+      state=present
+  notify: Restart MariaDB
+
+...

@@ -1,0 +1,21 @@
+---
+
+common_packages_redhat:
+   - vim
+   - "@Development Tools"
+   - net-tools
+   - wget
+
+common_packages_redhat_remove:
+   - NetworkManager
+   - NetworkManager-libnm
+   - firewalld
+   - postfix
+   
+common_packages_debian:
+   - vim
+   - net-tools
+   - build-essential
+   - wget
+   
+...

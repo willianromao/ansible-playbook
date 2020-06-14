@@ -1,0 +1,16 @@
+---
+
+- name: Instalacao do MariaDB
+  hosts: servidor_mysql
+  roles:
+    - common
+    - mysql
+
+- name: Instalacao do Wordpress
+  hosts: servidor_www
+  roles:
+    - common
+    - nginx
+    - php
+    - wordpress
+...

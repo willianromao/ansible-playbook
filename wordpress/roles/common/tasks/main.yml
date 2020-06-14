@@ -1,0 +1,92 @@
+---
+
+# Configuracoes Gerais
+
+- name: Desabilitando SELINUX de forma permanente
+  replace:
+    dest: /etc/selinux/config
+    regexp: 'SELINUX=enforcing'
+    replace: 'SELINUX=disabled'
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+
+- name: Desabilitando SELINUX de forma temporaria
+  shell: setenforce 0
+  ignore_errors: yes
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+ 
+- name: Alteração do /etc/profile
+  lineinfile: dest=/etc/profile line={{item}}
+  with_items:
+      - '#variavies e alias customizados'
+      - 'export HISTTIMEFORMAT="%d/%m/%Y - %H:%M:%S - "'
+      - 'export HISTSIZE="5000"'
+      - 'export HISTFILESIZE="5000"'
+
+# Gerenciamento de pacotes e atualização do sistema CentOS e RedHat
+
+- name: Instalação do repositorio epel-release
+  yum: name=epel-release state=latest   
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+   
+- name: Atualização do sistema
+  yum: name=* state=latest update_cache=yes
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+   
+- name: Instalação de pacotes basicos
+  yum: name={{common_packages_redhat}} state=latest
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+   
+- name: Remoção de pacotes desnecessarios
+  yum: name={{common_packages_redhat_remove}} state=absent
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'RedHat'
+   
+# Gerenciamento de pacotes e atualização do sistema Debian ou Ubuntu
+
+- name: atualização do sistema
+  apt: update_cache=yes upgrade=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+   
+- name: Instalação de pacotes basicos
+  apt: name={{common_packages_debian}} state=latest update_cache=yes
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+   
+# Gerenciamento de usuários
+
+- name: Criando o usuário ansible
+  user:
+      name=ansible
+      comment="ansible User"
+      shell="/bin/bash"
+      home="/home/ansible"
+      password="c29f22af2b295adad62ff6a202dc63eb"
+      
+# Timezone
+
+- name: Configurando o timezone
+  file: src=/usr/share/zoneinfo/America/Recife dest=/etc/localtime state=link force=yes owner=root group=root
+   
+# Configurações de SSH
+
+- name: Configurações do SSH
+  lineinfile:
+      dest=/etc/ssh/sshd_config
+      state=present
+      regexp={{ item.regexp }}
+      line={{ item.line }}
+  with_items:
+      - { regexp: '#Banner none', line: 'Banner /etc/ssh/banner' }
+      
+- name: Definindo o protocolo versao 2 do SSH
+  lineinfile:
+      dest=/etc/ssh/sshd_config line='Protocol 2'
+
+- name: Adicionado o motd
+  template: src=motd dest=/etc/motd force=yes owner=root group=root mode=0755  
+  notify: Restart SSH 
+
+- name: Add SSH Banner
+  copy: src=banner dest=/etc/ssh/banner
+  notify:
+    - Restart SSH   
+
+...

@@ -1,0 +1,37 @@
+---
+
+- name: Verificação do SO para essa task
+  fail:
+    msg: 
+     - "Essa task foi criada para CentOS 7"
+     - "Revise essa task para rodar em {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+  when:
+  - ansible_distribution != 'CentOS'
+  - ansible_distribution_major_version != '7'
+
+- name: Download do wordpress
+  unarchive:
+      src: https://wordpress.org/latest.zip
+      dest: /var/www/html
+      owner: nginx
+      group: nginx
+      remote_src: yes
+
+- name: Configuracao da key do wordpress (salt)
+  local_action: command curl https://api.wordpress.org/secret-key/1.1/salt/
+  register: "wp_salt"
+  become: no
+  become_method: sudo
+  args: 
+    warn: false
+   
+- name: Copiando o template wp-config.php para o servidor
+  template: src=wp-config.php dest=/var/www/html/wordpress force=yes owner=nginx group=nginx
+
+- name: Copiando o arquivo vhost.conf para o nginx
+  copy: src=vhost.conf dest=/etc/nginx/vhosts.d/vhost.conf owner=root group=root
+  notify:
+      - Restart php-fpm
+      - Restart nginx
+
+...

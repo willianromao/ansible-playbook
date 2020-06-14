@@ -1,0 +1,3 @@
+group_vars/servidores_lab
+hosts_lab
+roles/hostname/

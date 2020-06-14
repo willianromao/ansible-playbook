@@ -1,0 +1,48 @@
+---
+
+- name: Verificação do SO para essa task
+  fail:
+    msg: 
+     - "Essa task foi criada para CentOS 7"
+     - "Revise essa task para rodar em {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+  when:
+  - ansible_distribution != 'CentOS'
+  - ansible_distribution_major_version != '7'
+
+- name: Copiar o repositorio oficial do nginx
+  copy: src=nginx.repo dest=/etc/yum.repos.d/nginx.repo owner=root group=root
+
+- name: Atualizacao do sistema
+  yum: name=* state=latest update_cache=yes
+
+- name: Instalação do pacote nginx
+  yum:
+      name: ['nginx', 'nginx-module-geoip']
+      state: latest
+
+- name: Verificar se o diretorio /etc/nginx_ori existe
+  stat:
+     path: /etc/nginx_ori
+  register: stat_result
+      
+- name: Criar copia de segurança do /etc/nginx
+  command: mv /etc/nginx /etc/nginx_ori
+  args: 
+    warn: false
+  when: 
+    - not stat_result.stat.exists
+
+- name: Copiar o nginx.tar.gz para o servidor
+  unarchive: src=nginx.tar.gz dest=/etc/ owner=root group=root
+    
+- name: Criação de diretorios do nginx
+  file: path={{ item }} state=directory mode=0755 owner=nginx group=nginx
+  with_items:
+      - /var/www
+      - /var/www/html
+      
+- name: Rodar o nginx na inicialização
+  command: systemctl enable nginx.service
+  notify: Restart nginx
+
+...

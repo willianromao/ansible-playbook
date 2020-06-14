@@ -1,0 +1,8 @@
+---
+
+- name: Playbook para Wordpress
+   hosts: docker
+   roles:
+      - common
+      
+...

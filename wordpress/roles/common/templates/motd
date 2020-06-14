@@ -1,0 +1,6 @@
+------------------------------------------------
+Bem vindo ao servidor {{ ansible_hostname }}
+IP= {{ ansible_all_ipv4_addresses }}
+OS= {{ ansible_distribution }} {{ ansible_distribution_version }}
+------------------------------------------------
+

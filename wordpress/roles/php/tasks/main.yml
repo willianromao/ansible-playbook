@@ -1,0 +1,53 @@
+---
+
+- name: Verificação do SO para essa task
+  fail:
+    msg: 
+     - "Essa task foi criada para CentOS 7"
+     - "Revise essa task para rodar em {{ ansible_distribution }} {{ ansible_distribution_major_version }}"
+  when:
+  - ansible_distribution != 'CentOS'
+  - ansible_distribution_major_version != '7'
+
+- name: Instalação do repositorio do PHP 7.2
+  yum: 
+    name: ['https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm', 'https://mirror.webtatic.com/yum/el7/webtatic-release.rpm']
+    state: latest
+  
+- name: Atualização do sistema
+  yum: name=* state=latest update_cache=yes
+   
+- name: Instalação do PHP 7.2
+  yum: name={{ packages_php }} state=latest
+   
+- name: Copia de segurança do /etc/php.ini
+  command: cp /etc/php.ini /etc/php.ini.ori
+  args: 
+    warn: false
+   
+- name: Criando copia de segurança do /etc/php-fpm.d/www.conf
+  command: mv /etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf.ori
+  args: 
+    warn: false
+   
+- name: Configuração do timezone do php
+  lineinfile:
+      dest=/etc/php.ini
+      state=present
+      regexp=';date.timezone ='
+      line='date.timezone = America/Recife'
+      
+- name: Copiando o arquivo www.conf para o servidor
+  copy: src=www.conf dest=/etc/php-fpm.d/www.conf owner=root group=root
+   
+- name: Criação de diretorios do php-fpm
+  file: path={{ item }} state=directory mode=755 owner=nginx group=nginx
+  with_items:
+      - /var/lib/php/session
+      - /var/lib/php/wsdlcache
+      
+- name: Rodar o php-fpm na inicialização
+  command: systemctl enable php-fpm.service
+  notify: Restart php-fpm
+
+...
