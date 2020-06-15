@@ -1,4 +1,4 @@
-# Ansible Playbook para Troca de chaves de acesso SSH entre hosts
+# Ansible Playbook para troca de chaves de acesso SSH entre hosts
 
 #
 A playbook foi elaborada para geração de um par de chaves no host master
