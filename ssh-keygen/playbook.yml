@@ -1,0 +1,7 @@
+---
+
+- name: Troca de chaves de acesso SSH login não root
+  hosts: master_servers
+  roles: 
+    - ssh-keygen
+...

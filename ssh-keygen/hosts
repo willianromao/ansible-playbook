@@ -1,0 +1,9 @@
+[master_servers]
+Ansible ansible_ssh_host=localhost
+
+[master_servers:vars]
+ansible_connection=ssh
+ansible_ssh_port=22
+ansible_ssh_user=...usuario ssh... 
+ansible_ssh_pass=...senha...
+ansible_python_interpreter=/usr/bin/python2.7
