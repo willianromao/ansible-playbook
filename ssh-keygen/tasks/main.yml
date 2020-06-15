@@ -1,0 +1,35 @@
+---
+
+- name: Verificar se o sshpass está instalado
+  stat:
+     path: /usr/bin/sshpass
+  register: stat_sshpass
+
+- name: Resultado da verificação do sshpass
+  fail:
+    msg: "Falha ao encontrar o /usr/bin/sshpass no {{ ansible_hostname }}"
+  when: not stat_sshpass.stat.exists
+
+- name: Geração da chave no host {{ ansible_hostname }}
+  openssh_keypair:
+    path: ~/.ssh/id_rsa
+    size: 2048
+    force: yes
+
+- name: Criação de um arquivo temporário com a senha do ssh
+  shell:
+    cmd: echo {{ ansible_ssh_pass }} > ~/.ssh/pass.tmp
+
+- name: Instalação da chave nos servidores alvos
+  shell:
+    cmd: sshpass -f ~/.ssh/pass.tmp ssh-copy-id -i ~/.ssh/id_rsa {{ ansible_ssh_user }}@{{ item }} -f
+  loop: "{{ target_servers }}"
+  register: command_result
+  failed_when:
+       - "'FAIL' in command_result.stderr"
+       
+- name: Remoção do arquivo temporário
+  file:
+    name: ~/.ssh/pass.tmp
+    state: absent
+...
