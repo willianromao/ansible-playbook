@@ -1,31 +1,48 @@
-Role Name
+ssh-keygen
 =========
 
-A brief description of the role goes here.
+A role foi elaborada para geração de um par de chaves no host master e instalada nos hosts slaves.
+Ex: Você tem um parque de hosts que deseja automatizar tarefas usando Ansible ou Rundeck 
+e não deseja informar a senha de acesso aos hosts nas suas tarefas.
+Arole considera que o usuário usado para alcançar os hosts será o mesmo para a trocada de chaves.
+Considera também que a porta ssh é a mesma para todos os hosts, masters e slaves.
+Caso seu cenário seje diferente, revise a role.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Requer a instalação do sshpass
+[yum, apt] install sshpass
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+defaults/main.yml
+Declaração das variáveis WORDKDIR e KEYNAME
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+vars/main.yml
+Declaração dos hosts alvo de instalação da chave
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+- name: Troca de chaves de acesso SSH
+  hosts: master_servers
+  roles: 
+    - ssh-keygen
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+Example Inventory
+----------------
+
+[master_servers]
+Ansible ansible_ssh_host=localhost
+
+[master_servers:vars]
+ansible_connection=ssh
+ansible_ssh_port=22
+ansible_ssh_user=...usuario ssh... 
+ansible_ssh_pass=...senha...
+ansible_python_interpreter=/usr/bin/python2.7
 
 License
 -------
@@ -35,4 +52,6 @@ BSD
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Willian Romão
+willian.romao@outlook.com.br
+https://github.com/willianromao

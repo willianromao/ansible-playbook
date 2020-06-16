@@ -1,16 +1,27 @@
-# Ansible Playbook para instalação do WordPress
+# Ansible Playbook para troca de chaves de acesso SSH entre hosts
 
-Fonte: https://www.udemy.com/course/ansible-para-sysadmin/
 #
-O playbook foi elaborado para dois hosts executarem a aplicação WordPress.
+A playbook foi elaborada para geração de um par de chaves no host master
 
-Um host com CentOS 7 rodando mariadb/mysql,
+e instalada nos hosts slaves.
 
-e outro rodando Ubuntu 18.04 com nginx, php e wordpress,
+Ex: Você tem um parque de hosts que deseja automatizar tarefas usando Ansible
 
-Modifique o playbook para readequar ao seu cenário caso seje diferente.
+ou Rundeck e não deseja informar a senha de acesso aos hosts nas suas tarefas.
+#
+A playbook considera que o usuário usado para alcançar os hosts
 
-Altere o arquivo hosts para o seu cenário.
+será o mesmo para a trocada de chaves.
+
+Considera também que a porta ssh é a mesma para todos os hosts, masters e slaves.
+
+Caso seu cenário seje diferente, revise a playbook.
+#
+Use o arquivo de inventário hosts para definir os hosts master
+
+e o arquivo roles/ssh-keygen/vars/main.yml para os hosts slave.
+#
+Requisito para a execução da playbook é a instalação do sshpass
 #
 play> ansible-playbook -i hosts playbook.yml
 #

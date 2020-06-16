@@ -1,6 +1,6 @@
 ---
 
-- name: Troca de chaves de acesso SSH login não root
+- name: Troca de chaves de acesso SSH
   hosts: master_servers
   roles: 
     - ssh-keygen
