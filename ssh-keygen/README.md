@@ -1,9 +1,9 @@
 # Ansible Playbook para troca de chaves de acesso SSH entre hosts
 
 #
-A playbook foi elaborada para geração de um par de chaves no host master
+A playbook foi elaborada para geração de um par de chaves nos hosts master
 
-e instalada nos hosts slaves.
+e instalada nos hosts slave.
 
 Ex: Você tem um parque de hosts que deseja automatizar tarefas usando Ansible
 
