@@ -33,7 +33,7 @@
 
 - name: Instalação da chave nos servidores alvos
   shell:
-    cmd: sshpass -f {{ WORKDIR }}/pass.tmp ssh-copy-id -p {{ ansible_ssh_port }} -i {{ WORKDIR }}/{{ KEYNAME }} {{ ansible_ssh_user }}@{{ item }}
+    cmd: sshpass -f {{ WORKDIR }}/pass.tmp ssh-copy-id -o StrictHostKeyChecking=no -p {{ ansible_ssh_port }} -i {{ WORKDIR }}/{{ KEYNAME }} {{ ansible_ssh_user }}@{{ item }}
   loop:  "{{ target_servers }}"
   register: command_result
   failed_when: "'ERROR' in command_result.stderr"
