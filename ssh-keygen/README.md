@@ -1,6 +1,5 @@
 # Ansible Playbook para troca de chaves de acesso SSH entre hosts
 
-#
 A playbook foi elaborada para geração de um par de chaves nos hosts master
 
 e instalada nos hosts slave.
@@ -21,7 +20,7 @@ Use o arquivo de inventário hosts para definir os hosts master
 
 e o arquivo roles/ssh-keygen/vars/main.yml para os hosts slave.
 #
-Requisito para a execução da playbook é a instalação do sshpass
+Requisito para a execução da playbook é a instalação do sshpass nos hosts masters.
 #
 play> ansible-playbook -i hosts playbook.yml
 #
